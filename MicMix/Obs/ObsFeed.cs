@@ -52,20 +52,24 @@ public sealed class ObsFeed : IDisposable
 
             _deviceId = deviceId;
             _sampleRate = sampleRate;
-            string pipeName = $"MicMix.Obs.{_name}.{Environment.ProcessId}";
+            // The pipe carries the live voice. Unguessable name, current-user-only ACL, and Send() checks that the
+            // client is the helper we started, so no other local process can connect first and listen in.
+            string pipeName = $"MicMix.Obs.{_name}.{Guid.NewGuid():N}";
             try
             {
-                _pipe = new NamedPipeServerStream(pipeName, PipeDirection.Out, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
+                _pipe = new NamedPipeServerStream(pipeName, PipeDirection.Out, 1, PipeTransmissionMode.Byte,
+                    PipeOptions.Asynchronous | PipeOptions.CurrentUserOnly);
                 _queue = new BlockingCollection<float[]>(boundedCapacity: 100);
                 _helper = Process.Start(new ProcessStartInfo(Environment.ProcessPath!)
                 {
                     ArgumentList = { HelperArg, pipeName, deviceId, sampleRate.ToString(), Title },
                     UseShellExecute = false,
                     CreateNoWindow = true,
-                });
+                }) ?? throw new InvalidOperationException("helper did not start");
                 var pipe = _pipe;
                 var queue = _queue;
-                new Thread(() => Send(pipe, queue)) { IsBackground = true, Name = $"OBS feed {_name}" }.Start();
+                int helperPid = _helper.Id;
+                new Thread(() => Send(pipe, queue, helperPid)) { IsBackground = true, Name = $"OBS feed {_name}" }.Start();
                 Status = "запускается…";
             }
             catch (Exception ex)
@@ -77,12 +81,14 @@ public sealed class ObsFeed : IDisposable
         }
     }
 
-    private void Send(NamedPipeServerStream pipe, BlockingCollection<float[]> queue)
+    private void Send(NamedPipeServerStream pipe, BlockingCollection<float[]> queue, int helperPid)
     {
         try
         {
             if (!pipe.WaitForConnectionAsync().Wait(TimeSpan.FromSeconds(10)))
                 throw new TimeoutException("helper did not connect");
+            if (!GetNamedPipeClientProcessId(pipe.SafePipeHandle, out uint clientPid) || clientPid != helperPid)
+                throw new InvalidOperationException("unexpected process on the OBS pipe");
             _connected = true;
             var bytes = new byte[0];
             foreach (var block in queue.GetConsumingEnumerable())
@@ -140,4 +146,7 @@ public sealed class ObsFeed : IDisposable
     }
 
     public void Dispose() => Stop();
+
+    [System.Runtime.InteropServices.DllImport("kernel32.dll", SetLastError = true)]
+    private static extern bool GetNamedPipeClientProcessId(Microsoft.Win32.SafeHandles.SafePipeHandle pipe, out uint clientProcessId);
 }

@@ -74,7 +74,8 @@ public static class ObsFeedHost
         output.Init(feed);
         output.Play();
 
-        using var pipe = new NamedPipeClientStream(".", pipeName, PipeDirection.In);
+        // CurrentUserOnly: refuse a pipe of that name owned by anyone but us.
+        using var pipe = new NamedPipeClientStream(".", pipeName, PipeDirection.In, PipeOptions.CurrentUserOnly);
         pipe.Connect(5000);
         var bytes = new byte[sampleRate * 2 * sizeof(float) / 50]; // 20 ms
         var samples = new float[bytes.Length / sizeof(float)];
