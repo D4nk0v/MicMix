@@ -15,7 +15,7 @@
     <AssemblyTitle>MicMix</AssemblyTitle>
     <Product>MicMix</Product>
     <Description>Твой голос и звук выбранных программ в одном микрофоне</Description>
-    <Version>1.1.0</Version>
+    <Version>1.1.1</Version>
     <!-- Fluent ThemeMode is marked experimental in .NET 9 WPF. -->
     <NoWarn>$(NoWarn);WPF0001</NoWarn>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
