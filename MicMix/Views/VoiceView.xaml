@@ -1,0 +1,139 @@
+<UserControl x:Class="MicMix.Views.VoiceView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:c="clr-namespace:MicMix.Controls">
+    <UserControl.Resources>
+        <!-- One step of the chain: switch + name/description, slider, value. -->
+        <Style x:Key="RowName" TargetType="StackPanel">
+            <Setter Property="Width" Value="250" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+    </UserControl.Resources>
+    <StackPanel>
+        <DockPanel Margin="0,0,0,6">
+            <CheckBox DockPanel.Dock="Right" Style="{StaticResource Switch}" IsChecked="{Binding Voice.Enabled}" VerticalAlignment="Center">
+                <TextBlock Text="Включено" />
+            </CheckBox>
+            <TextBlock Style="{StaticResource PageTitle}" Text="Голос" />
+        </DockPanel>
+        <TextBlock Style="{StaticResource Hint}" Margin="0,0,0,18"
+                   Text="Обработка только твоего голоса. Музыку и программы она не трогает." />
+
+        <StackPanel IsEnabled="{Binding Voice.Enabled}">
+            <!-- Presets -->
+            <TextBlock Style="{StaticResource SectionLabel}" Text="ПРЕСЕТ" />
+            <WrapPanel Margin="0,0,0,10">
+                <RadioButton Style="{StaticResource Chip}" Content="Универсальный" GroupName="preset"
+                             IsChecked="{Binding Voice.Preset, Converter={StaticResource EnumIs}, ConverterParameter=Universal}" />
+                <RadioButton Style="{StaticResource Chip}" Content="HyperX SoloCast" GroupName="preset"
+                             IsChecked="{Binding Voice.Preset, Converter={StaticResource EnumIs}, ConverterParameter=SoloCast}" />
+                <RadioButton Style="{StaticResource Chip}" Content="Гарнитура" GroupName="preset"
+                             IsChecked="{Binding Voice.Preset, Converter={StaticResource EnumIs}, ConverterParameter=Headset}" />
+                <RadioButton Style="{StaticResource Chip}" Content="Свой" GroupName="preset" IsHitTestVisible="False"
+                             ToolTip="Включается сам, когда ты что-то подкрутил"
+                             IsChecked="{Binding Voice.Preset, Converter={StaticResource EnumIs}, ConverterParameter=Custom, Mode=OneWay}" />
+            </WrapPanel>
+
+            <!-- EQ -->
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <DockPanel Margin="0,0,0,10">
+                        <TextBlock DockPanel.Dock="Right" Style="{StaticResource Hint}" VerticalAlignment="Center"
+                                   Text="тяни точки · двойной щелчок — в ноль" />
+                        <CheckBox Style="{StaticResource Switch}" IsChecked="{Binding Voice.Eq}">
+                            <TextBlock Style="{StaticResource CardTitle}" Text="Эквалайзер" />
+                        </CheckBox>
+                    </DockPanel>
+                    <c:EqCurve Height="170" IsEnabled="{Binding Voice.Eq}"
+                               Gain100="{Binding Voice.Eq100}" Gain250="{Binding Voice.Eq250}" Gain1k="{Binding Voice.Eq1k}"
+                               Gain4k="{Binding Voice.Eq4k}" Gain10k="{Binding Voice.Eq10k}">
+                        <c:EqCurve.Style>
+                            <Style TargetType="c:EqCurve">
+                                <Style.Triggers>
+                                    <Trigger Property="IsEnabled" Value="False">
+                                        <Setter Property="Opacity" Value="0.35" />
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </c:EqCurve.Style>
+                    </c:EqCurve>
+                </StackPanel>
+            </Border>
+
+            <!-- Chain -->
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <TextBlock Style="{StaticResource CardTitle}" Text="Обработка" Margin="0,0,0,12" />
+
+                    <DockPanel Margin="0,0,0,14">
+                        <CheckBox Style="{StaticResource Switch}" IsChecked="{Binding Voice.HighPass}">
+                            <StackPanel>
+                                <TextBlock Text="Срез низов" />
+                                <TextBlock Style="{StaticResource Hint}" Text="убирает гул, удары по столу и вибрацию стойки" />
+                            </StackPanel>
+                        </CheckBox>
+                    </DockPanel>
+
+                    <DockPanel Margin="0,0,0,14">
+                        <CheckBox Style="{StaticResource Switch}" IsChecked="{Binding Voice.NoiseSuppression}" DockPanel.Dock="Left">
+                            <StackPanel Style="{StaticResource RowName}">
+                                <TextBlock Text="Шумодав" />
+                                <TextBlock Style="{StaticResource Hint}" Text="вентиляторы, ПК, фон комнаты" />
+                            </StackPanel>
+                        </CheckBox>
+                        <TextBlock DockPanel.Dock="Right" Width="44" TextAlignment="Right" VerticalAlignment="Center"
+                                   Text="{Binding Voice.NoiseStrength, Converter={StaticResource Percent}}" />
+                        <Slider Minimum="0" Maximum="1" Value="{Binding Voice.NoiseStrength}" VerticalAlignment="Center" Margin="12,0"
+                                IsMoveToPointEnabled="True" SmallChange="0.05" LargeChange="0.1" IsEnabled="{Binding Voice.NoiseSuppression}" Opacity="{Binding Voice.NoiseSuppression, Converter={StaticResource EnabledOpacity}}"
+                                ToolTip="Если голос стал «роботным» — убавь" />
+                    </DockPanel>
+
+                    <DockPanel Margin="0,0,0,14">
+                        <CheckBox Style="{StaticResource Switch}" IsChecked="{Binding Voice.Gate}" DockPanel.Dock="Left">
+                            <StackPanel Style="{StaticResource RowName}">
+                                <TextBlock Text="Гейт" />
+                                <TextBlock Style="{StaticResource Hint}" Text="закрывает микрофон, пока молчишь" />
+                            </StackPanel>
+                        </CheckBox>
+                        <TextBlock DockPanel.Dock="Right" Width="44" TextAlignment="Right" VerticalAlignment="Center"
+                                   Text="{Binding Voice.GateSensitivity, Converter={StaticResource Percent}}" />
+                        <Slider Minimum="0" Maximum="1" Value="{Binding Voice.GateSensitivity}" VerticalAlignment="Center" Margin="12,0"
+                                IsMoveToPointEnabled="True" SmallChange="0.05" LargeChange="0.1" IsEnabled="{Binding Voice.Gate}" Opacity="{Binding Voice.Gate, Converter={StaticResource EnabledOpacity}}"
+                                ToolTip="Чувствительность. Обрезает начало слов — прибавь. Пропускает клавиатуру — убавь" />
+                    </DockPanel>
+
+                    <DockPanel Margin="0,0,0,14">
+                        <CheckBox Style="{StaticResource Switch}" IsChecked="{Binding Voice.Compressor}" DockPanel.Dock="Left">
+                            <StackPanel Style="{StaticResource RowName}">
+                                <TextBlock Text="Компрессор" />
+                                <TextBlock Style="{StaticResource Hint}" Text="тихая речь и крик звучат ровнее" />
+                            </StackPanel>
+                        </CheckBox>
+                        <TextBlock DockPanel.Dock="Right" Width="44" TextAlignment="Right" VerticalAlignment="Center"
+                                   Text="{Binding Voice.CompressorAmount, Converter={StaticResource Percent}}" />
+                        <Slider Minimum="0" Maximum="1" Value="{Binding Voice.CompressorAmount}" VerticalAlignment="Center" Margin="12,0"
+                                IsMoveToPointEnabled="True" SmallChange="0.05" LargeChange="0.1" IsEnabled="{Binding Voice.Compressor}" Opacity="{Binding Voice.Compressor, Converter={StaticResource EnabledOpacity}}" />
+                    </DockPanel>
+
+                    <CheckBox Style="{StaticResource Switch}" IsChecked="{Binding Voice.Limiter}">
+                        <StackPanel>
+                            <TextBlock Text="Лимитер" />
+                            <TextBlock Style="{StaticResource Hint}" Text="голос никогда не перегружается и не хрипит" />
+                        </StackPanel>
+                    </CheckBox>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+
+        <DockPanel>
+            <ToggleButton Style="{StaticResource IconToggle}" IsChecked="{Binding MonitorEnabled}" DockPanel.Dock="Left">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Style="{StaticResource Icon}" Text="&#xE7F6;" FontSize="14" />
+                    <TextBlock Text="Послушать себя" FontSize="13" Margin="8,0,0,0" VerticalAlignment="Center" />
+                </StackPanel>
+            </ToggleButton>
+            <TextBlock Style="{StaticResource Hint}" Margin="12,0,0,0" VerticalAlignment="Center"
+                       Text="Включи и говори — настраивай на слух. Сигнал идёт с небольшой задержкой, это нормально." />
+        </DockPanel>
+    </StackPanel>
+</UserControl>

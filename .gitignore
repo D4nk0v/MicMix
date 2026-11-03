@@ -1,0 +1,17 @@
+# Build output
+bin/
+obj/
+.*/
+!.gitignore
+!.github/
+
+# Release artifacts: published on GitHub Releases, not in the repo
+*.zip
+MicMix-app/MicMix.exe
+
+# Third-party driver installer: downloaded by the app from vb-audio.com, never redistributed
+VBCable/
+
+# IDE
+*.user
+.vs/

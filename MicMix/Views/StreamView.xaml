@@ -1,0 +1,107 @@
+<UserControl x:Class="MicMix.Views.StreamView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <UserControl.Resources>
+        <Style x:Key="StepNumber" TargetType="Border">
+            <Setter Property="Width" Value="24" />
+            <Setter Property="Height" Value="24" />
+            <Setter Property="CornerRadius" Value="12" />
+            <Setter Property="Background" Value="{StaticResource AccentSoftBrush}" />
+            <Setter Property="Margin" Value="0,0,12,0" />
+            <Setter Property="VerticalAlignment" Value="Top" />
+        </Style>
+    </UserControl.Resources>
+    <StackPanel>
+        <DockPanel Margin="0,0,0,6">
+            <CheckBox DockPanel.Dock="Right" Style="{StaticResource Switch}" IsChecked="{Binding ObsEnabled}" VerticalAlignment="Center">
+                <TextBlock Text="Дорожки для OBS" />
+            </CheckBox>
+            <TextBlock Style="{StaticResource PageTitle}" Text="Стрим" />
+        </DockPanel>
+        <TextBlock Style="{StaticResource Hint}" Margin="0,0,0,18"
+                   Text="Голос и программы попадают в OBS двумя отдельными источниками: громкость, mute и дорожки записи — по отдельности. Удобно против DMCA: на записи можно оставить только голос." />
+
+        <StackPanel Visibility="{Binding ObsEnabled, Converter={StaticResource BoolToVis}}">
+            <Grid Margin="0,0,0,14">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="14" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Border Style="{StaticResource Card}" Margin="0">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Style="{StaticResource Icon}" Text="&#xE720;" Margin="0,0,10,0" />
+                            <TextBlock Style="{StaticResource CardTitle}" Text="Голос" />
+                        </StackPanel>
+                        <ProgressBar Style="{StaticResource Meter}" Value="{Binding MicLevel, Mode=OneWay}" Margin="0,12" />
+                        <TextBlock Style="{StaticResource Hint}" Text="{Binding VoiceTrackTitle}" />
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="2" Style="{StaticResource Card}" Margin="0">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Style="{StaticResource Icon}" Text="&#xE8D6;" Margin="0,0,10,0" />
+                            <TextBlock Style="{StaticResource CardTitle}" Text="Программы" />
+                        </StackPanel>
+                        <ProgressBar Style="{StaticResource Meter}" Value="{Binding AppsLevel, Mode=OneWay}" Margin="0,12" />
+                        <TextBlock Style="{StaticResource Hint}" Text="{Binding AppsTrackTitle}" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+            <TextBlock Style="{StaticResource Hint}" Margin="2,0,0,14">
+                <Run Text="Состояние:" /> <Run Text="{Binding ObsStatus, Mode=OneWay}" Foreground="{StaticResource TextBrush}" />
+            </TextBlock>
+
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <TextBlock Style="{StaticResource CardTitle}" Text="Через какой выход" Margin="0,0,0,4" />
+                    <TextBlock Style="{StaticResource Hint}" Margin="0,0,0,10"
+                               Text="Нужен выход, который ни к чему не подключён (обычно S/PDIF). Ты его не слышишь, а OBS забирает звук оттуда." />
+                    <ComboBox ItemsSource="{Binding ObsDevices}" SelectedItem="{Binding SelectedObsDevice}" HorizontalAlignment="Stretch" />
+                    <Border Style="{StaticResource Banner}" Background="{StaticResource ErrorSoftBrush}" BorderBrush="{StaticResource ErrorBrush}"
+                            Margin="0,10,0,0" Visibility="{Binding HasObsWarning, Converter={StaticResource BoolToVis}}">
+                        <TextBlock Style="{StaticResource Hint}" Foreground="{StaticResource TextBrush}" Text="{Binding ObsWarning}" />
+                    </Border>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <TextBlock Style="{StaticResource CardTitle}" Text="Как добавить в OBS" Margin="0,0,0,14" />
+                    <DockPanel Margin="0,0,0,12">
+                        <Border Style="{StaticResource StepNumber}"><TextBlock Text="1" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="12" /></Border>
+                        <TextBlock TextWrapping="Wrap">В «Источниках» нажми <Bold>+</Bold> → <Bold>Захват звука приложения</Bold>.</TextBlock>
+                    </DockPanel>
+                    <DockPanel Margin="0,0,0,12">
+                        <Border Style="{StaticResource StepNumber}"><TextBlock Text="2" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="12" /></Border>
+                        <TextBlock TextWrapping="Wrap">
+                            В поле «Окно» выбери <Bold><Run Text="{Binding VoiceTrackTitle, Mode=OneWay}" /></Bold>,
+                            приоритет — <Bold>Название окна должно совпадать</Bold>.
+                        </TextBlock>
+                    </DockPanel>
+                    <DockPanel Margin="0,0,0,12">
+                        <Border Style="{StaticResource StepNumber}"><TextBlock Text="3" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="12" /></Border>
+                        <TextBlock TextWrapping="Wrap">
+                            Повтори для <Bold><Run Text="{Binding AppsTrackTitle, Mode=OneWay}" /></Bold>.
+                        </TextBlock>
+                    </DockPanel>
+                    <DockPanel>
+                        <Border Style="{StaticResource StepNumber}"><TextBlock Text="4" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="12" /></Border>
+                        <TextBlock TextWrapping="Wrap">
+                            <Bold>CABLE Output</Bold> в OBS не добавляй — голос задвоится.
+                        </TextBlock>
+                    </DockPanel>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+
+        <Border Style="{StaticResource Card}" Visibility="{Binding ObsEnabled, Converter={StaticResource InverseVis}}">
+            <StackPanel>
+                <TextBlock Style="{StaticResource CardTitle}" Text="Без отдельных дорожек" Margin="0,0,0,6" />
+                <TextBlock Style="{StaticResource Hint}"
+                           Text="Можно просто добавить в OBS микрофон «CABLE Output» — там будет всё вместе: голос и отмеченные программы. Включи дорожки выше, если хочешь управлять ими по отдельности." />
+            </StackPanel>
+        </Border>
+    </StackPanel>
+</UserControl>

@@ -1,0 +1,115 @@
+<UserControl x:Class="MicMix.Views.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:MicMix.ViewModels">
+    <StackPanel>
+        <TextBlock Style="{StaticResource PageTitle}" Text="Настройки" Margin="0,0,0,18" />
+
+        <!-- Devices -->
+        <Border Style="{StaticResource Card}">
+            <StackPanel>
+                <TextBlock Style="{StaticResource CardTitle}" Text="Устройства" Margin="0,0,0,14" />
+                <TextBlock Style="{StaticResource Hint}" Text="Мой микрофон" Margin="0,0,0,6" />
+                <ComboBox ItemsSource="{Binding Mics}" SelectedItem="{Binding SelectedMic}" HorizontalAlignment="Stretch" />
+                <TextBlock Style="{StaticResource Hint}" Text="Виртуальный микрофон (куда MicMix отдаёт звук)" Margin="0,14,0,6" />
+                <ComboBox ItemsSource="{Binding Outputs}" SelectedItem="{Binding SelectedOutput}" HorizontalAlignment="Stretch" />
+                <TextBlock Style="{StaticResource Hint}" Margin="0,10,0,0">
+                    Обычно это <Bold>CABLE Input</Bold>. В Discord, играх и OBS выбирай микрофон <Bold>CABLE Output</Bold>.
+                    В Discord выключи «Шумоподавление», «Эхоподавление» и «Автоматическую регулировку усиления» — MicMix делает это сам.
+                </TextBlock>
+            </StackPanel>
+        </Border>
+
+        <!-- App sound -->
+        <Border Style="{StaticResource Card}">
+            <StackPanel>
+                <TextBlock Style="{StaticResource CardTitle}" Text="Звук программ в микрофоне" Margin="0,0,0,4" />
+                <TextBlock Style="{StaticResource Hint}" TextWrapping="Wrap" Margin="0,0,0,14"
+                           Text="Когда всё выключено, друзья слышат музыку и видео точно так же, как ты в наушниках. Включай, только если нужно." />
+
+                <CheckBox Style="{StaticResource Switch}" IsChecked="{Binding AppBus.Leveler}" Margin="0,0,0,14">
+                    <StackPanel>
+                        <TextBlock Text="Выравнивать громкость" />
+                        <TextBlock Style="{StaticResource Hint}" Text="тихие и громкие видео звучат одинаково, но музыка становится площе" />
+                    </StackPanel>
+                </CheckBox>
+
+                <CheckBox Style="{StaticResource Switch}" IsChecked="{Binding AppBus.LowCut}" Margin="0,0,0,14">
+                    <StackPanel>
+                        <TextBlock Text="Срезать сабнизы" />
+                        <TextBlock Style="{StaticResource Hint}" Text="убирает гул ниже 60 Гц, вместе с ним уходит часть баса" />
+                    </StackPanel>
+                </CheckBox>
+
+                <DockPanel>
+                    <CheckBox Style="{StaticResource Switch}" IsChecked="{Binding AppBus.Ducking}" DockPanel.Dock="Left">
+                        <StackPanel Width="250">
+                            <TextBlock Text="Тише, когда говорю" />
+                            <TextBlock Style="{StaticResource Hint}" Text="музыка уступает место голосу" />
+                        </StackPanel>
+                    </CheckBox>
+                    <TextBlock DockPanel.Dock="Right" Width="50" TextAlignment="Right" VerticalAlignment="Center"
+                               Text="{Binding AppBus.DuckDb, StringFormat='−{0:0} dB'}" />
+                    <Slider Minimum="3" Maximum="20" Value="{Binding AppBus.DuckDb}" VerticalAlignment="Center" Margin="12,0"
+                            IsMoveToPointEnabled="True" SmallChange="1" LargeChange="3" IsSnapToTickEnabled="True" TickFrequency="1"
+                            IsEnabled="{Binding AppBus.Ducking}" Opacity="{Binding AppBus.Ducking, Converter={StaticResource EnabledOpacity}}" ToolTip="На сколько тише" />
+                </DockPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- Hotkeys -->
+        <Border Style="{StaticResource Card}">
+            <StackPanel>
+                <DockPanel Margin="0,0,0,6">
+                    <Button DockPanel.Dock="Right" Style="{StaticResource LinkButton}" Content="По умолчанию" Click="ResetHotkeys_Click"
+                            VerticalAlignment="Center" />
+                    <TextBlock Style="{StaticResource CardTitle}" Text="Горячие клавиши" />
+                </DockPanel>
+                <TextBlock Style="{StaticResource Hint}" Margin="0,0,0,12"
+                           Text="Работают везде, даже в игре. Нажми на сочетание и затем новые клавиши. Esc — отмена, Backspace — убрать." />
+                <ItemsControl ItemsSource="{Binding Hotkeys}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="{x:Type vm:HotkeyItemViewModel}">
+                            <DockPanel Margin="0,4">
+                                <Button DockPanel.Dock="Right" Width="180" Padding="8,6" Click="HotkeyButton_Click" Tag="{Binding}">
+                                    <TextBlock Text="{Binding Text}" FontFamily="Cascadia Mono, Consolas" FontSize="12" />
+                                </Button>
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding Title}" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Style="{StaticResource Hint}" Foreground="{StaticResource ErrorBrush}"
+                                               Text="Занято другой программой — выбери другое сочетание"
+                                               Visibility="{Binding IsTaken, Converter={StaticResource BoolToVis}}" />
+                                </StackPanel>
+                            </DockPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <CheckBox Style="{StaticResource Switch}" IsChecked="{Binding HotkeySounds}" Margin="0,14,0,0">
+                    <TextBlock Text="Короткий сигнал в наушниках при нажатии" />
+                </CheckBox>
+            </StackPanel>
+        </Border>
+
+        <!-- General -->
+        <Border Style="{StaticResource Card}">
+            <StackPanel>
+                <TextBlock Style="{StaticResource CardTitle}" Text="Общее" Margin="0,0,0,14" />
+                <CheckBox Style="{StaticResource Switch}" IsChecked="{Binding AutostartEnabled}">
+                    <StackPanel>
+                        <TextBlock Text="Запускать вместе с Windows" />
+                        <TextBlock Style="{StaticResource Hint}" Text="MicMix стартует свёрнутым в трей" />
+                    </StackPanel>
+                </CheckBox>
+                <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
+                    <Button Content="Пройти настройку заново" Click="RunSetup_Click" Margin="0,0,10,0" />
+                    <Button Content="Папка с настройками и логами" Click="OpenDataFolder_Click" />
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <TextBlock Style="{StaticResource Hint}" Margin="4,0">
+            <Run Text="{Binding VersionText, Mode=OneWay}" />
+            <Run Text=" · окно закрывается в трей, выйти — правой кнопкой по значку в трее" />
+        </TextBlock>
+    </StackPanel>
+</UserControl>

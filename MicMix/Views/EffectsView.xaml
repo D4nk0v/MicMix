@@ -1,0 +1,161 @@
+<UserControl x:Class="MicMix.Views.EffectsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <UserControl.Resources>
+        <Style x:Key="TileName" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+        <Style x:Key="TileHint" TargetType="TextBlock" BasedOn="{StaticResource Hint}">
+            <Setter Property="FontSize" Value="11.5" />
+            <Setter Property="Margin" Value="0,2,0,0" />
+        </Style>
+        <Style x:Key="RowName" TargetType="StackPanel">
+            <Setter Property="Width" Value="190" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+        <Style x:Key="Value" TargetType="TextBlock">
+            <Setter Property="Width" Value="64" />
+            <Setter Property="TextAlignment" Value="Right" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+    </UserControl.Resources>
+
+    <StackPanel>
+        <DockPanel Margin="0,0,0,6">
+            <CheckBox DockPanel.Dock="Right" Style="{StaticResource Switch}" IsChecked="{Binding VoiceFx.Enabled}" VerticalAlignment="Center">
+                <TextBlock Text="Включено" />
+            </CheckBox>
+            <TextBlock Style="{StaticResource PageTitle}" Text="Эффекты" />
+        </DockPanel>
+        <TextBlock Style="{StaticResource Hint}" Margin="0,0,0,18">
+            Меняет твой голос для всех, кто тебя слышит. Выбери пресет или подкрути сам.
+            <Run Foreground="{StaticResource TextBrush}" Text="Ctrl+Alt+F" /> — быстро включить или выключить.
+        </TextBlock>
+
+        <!-- Presets -->
+        <TextBlock Style="{StaticResource SectionLabel}" Text="ПРЕСЕТЫ" />
+        <UniformGrid Columns="3" Margin="0,0,-10,8">
+            <RadioButton Style="{StaticResource Tile}" Tag="&#xE74B;" GroupName="fx" Click="Preset_Click"
+                         IsChecked="{Binding VoiceFx.Preset, Converter={StaticResource EnumIs}, ConverterParameter=Deep}">
+                <StackPanel><TextBlock Style="{StaticResource TileName}" Text="Низкий" /><TextBlock Style="{StaticResource TileHint}" Text="басовитее и солиднее" /></StackPanel>
+            </RadioButton>
+            <RadioButton Style="{StaticResource Tile}" Tag="&#xE945;" GroupName="fx" Click="Preset_Click"
+                         IsChecked="{Binding VoiceFx.Preset, Converter={StaticResource EnumIs}, ConverterParameter=Demon}">
+                <StackPanel><TextBlock Style="{StaticResource TileName}" Text="Демон" /><TextBlock Style="{StaticResource TileHint}" Text="очень низко, с металлом" /></StackPanel>
+            </RadioButton>
+            <RadioButton Style="{StaticResource Tile}" Tag="&#xE74A;" GroupName="fx" Click="Preset_Click"
+                         IsChecked="{Binding VoiceFx.Preset, Converter={StaticResource EnumIs}, ConverterParameter=High}">
+                <StackPanel><TextBlock Style="{StaticResource TileName}" Text="Высокий" /><TextBlock Style="{StaticResource TileHint}" Text="моложе и звонче" /></StackPanel>
+            </RadioButton>
+            <RadioButton Style="{StaticResource Tile}" Tag="&#xE76E;" GroupName="fx" Click="Preset_Click"
+                         IsChecked="{Binding VoiceFx.Preset, Converter={StaticResource EnumIs}, ConverterParameter=Chipmunk}">
+                <StackPanel><TextBlock Style="{StaticResource TileName}" Text="Бурундук" /><TextBlock Style="{StaticResource TileHint}" Text="мультяшно высоко" /></StackPanel>
+            </RadioButton>
+            <RadioButton Style="{StaticResource Tile}" Tag="&#xE99A;" GroupName="fx" Click="Preset_Click"
+                         IsChecked="{Binding VoiceFx.Preset, Converter={StaticResource EnumIs}, ConverterParameter=Robot}">
+                <StackPanel><TextBlock Style="{StaticResource TileName}" Text="Робот" /><TextBlock Style="{StaticResource TileHint}" Text="металлический, как дроид" /></StackPanel>
+            </RadioButton>
+            <RadioButton Style="{StaticResource Tile}" Tag="&#xE909;" GroupName="fx" Click="Preset_Click"
+                         IsChecked="{Binding VoiceFx.Preset, Converter={StaticResource EnumIs}, ConverterParameter=Alien}">
+                <StackPanel><TextBlock Style="{StaticResource TileName}" Text="Пришелец" /><TextBlock Style="{StaticResource TileHint}" Text="высоко и неземно" /></StackPanel>
+            </RadioButton>
+            <RadioButton Style="{StaticResource Tile}" Tag="&#xE717;" GroupName="fx" Click="Preset_Click"
+                         IsChecked="{Binding VoiceFx.Preset, Converter={StaticResource EnumIs}, ConverterParameter=Radio}">
+                <StackPanel><TextBlock Style="{StaticResource TileName}" Text="Рация" /><TextBlock Style="{StaticResource TileHint}" Text="узко и с хрипотцой" /></StackPanel>
+            </RadioButton>
+            <RadioButton Style="{StaticResource Tile}" Tag="&#xE701;" GroupName="fx" Click="Preset_Click"
+                         IsChecked="{Binding VoiceFx.Preset, Converter={StaticResource EnumIs}, ConverterParameter=BadSignal}">
+                <StackPanel><TextBlock Style="{StaticResource TileName}" Text="Плохая связь" /><TextBlock Style="{StaticResource TileHint}" Text="рация, которая рвётся" /></StackPanel>
+            </RadioButton>
+            <RadioButton Style="{StaticResource Tile}" Tag="&#xE916;" GroupName="fx" Click="Preset_Click"
+                         IsChecked="{Binding VoiceFx.Preset, Converter={StaticResource EnumIs}, ConverterParameter=Choppy}">
+                <StackPanel><TextBlock Style="{StaticResource TileName}" Text="Прерывистый" /><TextBlock Style="{StaticResource TileHint}" Text="голос рубится на куски" /></StackPanel>
+            </RadioButton>
+        </UniformGrid>
+
+        <!-- Fine tuning -->
+        <Border Style="{StaticResource Card}">
+            <StackPanel>
+                <DockPanel Margin="0,0,0,16">
+                    <Button DockPanel.Dock="Right" Style="{StaticResource LinkButton}" Content="Сбросить" Click="Reset_Click"
+                            VerticalAlignment="Center" ToolTip="Вернуть обычный голос: тон 0, без эффектов" />
+                    <Border DockPanel.Dock="Right" CornerRadius="9" Padding="9,2" Margin="0,0,14,0" Background="{StaticResource AccentSoftBrush}"
+                            VerticalAlignment="Center"
+                            Visibility="{Binding VoiceFx.Preset, Converter={StaticResource EqualsVis}, ConverterParameter=Custom}">
+                        <TextBlock Text="свои настройки" FontSize="11" />
+                    </Border>
+                    <TextBlock Style="{StaticResource CardTitle}" Text="Тонкая настройка" />
+                </DockPanel>
+
+                <!-- Pitch -->
+                <DockPanel Margin="0,0,0,4">
+                    <StackPanel DockPanel.Dock="Left" Style="{StaticResource RowName}">
+                        <TextBlock Text="Тон" />
+                        <TextBlock Style="{StaticResource Hint}" Text="ниже или выше, в полутонах" />
+                    </StackPanel>
+                    <TextBlock DockPanel.Dock="Right" Style="{StaticResource Value}"
+                               Text="{Binding VoiceFx.Pitch, StringFormat='{}{0:+0.#;−0.#;0}'}" />
+                    <Slider Minimum="-12" Maximum="12" Value="{Binding VoiceFx.Pitch}" VerticalAlignment="Center" Margin="12,0"
+                            IsMoveToPointEnabled="True" SmallChange="0.5" LargeChange="1" TickFrequency="0.5" IsSnapToTickEnabled="True" />
+                </DockPanel>
+                <DockPanel Margin="202,0,76,14">
+                    <TextBlock DockPanel.Dock="Left" Style="{StaticResource Hint}" FontSize="11" Text="на октаву ниже" />
+                    <TextBlock DockPanel.Dock="Right" Style="{StaticResource Hint}" FontSize="11" Text="на октаву выше" />
+                    <TextBlock Style="{StaticResource Hint}" FontSize="11" Text="обычный" HorizontalAlignment="Center" />
+                </DockPanel>
+
+                <!-- Robot -->
+                <DockPanel Margin="0,0,0,16">
+                    <StackPanel DockPanel.Dock="Left" Style="{StaticResource RowName}">
+                        <TextBlock Text="Робот" />
+                        <TextBlock Style="{StaticResource Hint}" Text="металлический призвук" />
+                    </StackPanel>
+                    <TextBlock DockPanel.Dock="Right" Style="{StaticResource Value}" Text="{Binding VoiceFx.Robot, Converter={StaticResource Percent}}" />
+                    <Slider Minimum="0" Maximum="1" Value="{Binding VoiceFx.Robot}" VerticalAlignment="Center" Margin="12,0"
+                            IsMoveToPointEnabled="True" SmallChange="0.05" LargeChange="0.1" />
+                </DockPanel>
+
+                <!-- Choppy -->
+                <DockPanel Margin="0,0,0,8">
+                    <StackPanel DockPanel.Dock="Left" Style="{StaticResource RowName}">
+                        <TextBlock Text="Прерывистость" />
+                        <TextBlock Style="{StaticResource Hint}" Text="насколько глубоко рвётся" />
+                    </StackPanel>
+                    <TextBlock DockPanel.Dock="Right" Style="{StaticResource Value}" Text="{Binding VoiceFx.Choppy, Converter={StaticResource Percent}}" />
+                    <Slider Minimum="0" Maximum="1" Value="{Binding VoiceFx.Choppy}" VerticalAlignment="Center" Margin="12,0"
+                            IsMoveToPointEnabled="True" SmallChange="0.05" LargeChange="0.1" />
+                </DockPanel>
+                <DockPanel Margin="0,0,0,16">
+                    <StackPanel DockPanel.Dock="Left" Style="{StaticResource RowName}">
+                        <TextBlock Text="Частота обрывов" />
+                        <TextBlock Style="{StaticResource Hint}" Text="сколько раз в секунду" />
+                    </StackPanel>
+                    <TextBlock DockPanel.Dock="Right" Style="{StaticResource Value}" Text="{Binding VoiceFx.ChoppyRate, StringFormat='{}{0:0} /с'}" />
+                    <Slider Minimum="2" Maximum="20" Value="{Binding VoiceFx.ChoppyRate}" VerticalAlignment="Center" Margin="12,0"
+                            IsMoveToPointEnabled="True" SmallChange="1" LargeChange="2" TickFrequency="1" IsSnapToTickEnabled="True" />
+                </DockPanel>
+
+                <!-- Radio -->
+                <CheckBox Style="{StaticResource Switch}" IsChecked="{Binding VoiceFx.Radio}">
+                    <StackPanel>
+                        <TextBlock Text="Рация" />
+                        <TextBlock Style="{StaticResource Hint}" Text="узкая полоса и лёгкий хрип, как в радиопереговорах" />
+                    </StackPanel>
+                </CheckBox>
+            </StackPanel>
+        </Border>
+
+        <DockPanel>
+            <ToggleButton Style="{StaticResource IconToggle}" IsChecked="{Binding MonitorEnabled}" DockPanel.Dock="Left">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Style="{StaticResource Icon}" Text="&#xE7F6;" FontSize="14" />
+                    <TextBlock Text="Послушать себя" FontSize="13" Margin="8,0,0,0" VerticalAlignment="Center" />
+                </StackPanel>
+            </ToggleButton>
+            <TextBlock Style="{StaticResource Hint}" Margin="12,0,0,0" VerticalAlignment="Center"
+                       Text="Включи и говори — так слышно, что получится у друзей." />
+        </DockPanel>
+    </StackPanel>
+</UserControl>
