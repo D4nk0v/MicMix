@@ -9,15 +9,17 @@ namespace MicMix.ViewModels;
 /// </summary>
 public sealed partial class MainViewModel
 {
-    public static MainViewModel CreateDemo(Page page)
+    /// <param name="setupWizard">Show the first-run wizard on a machine without VB-Cable instead of the page.</param>
+    public static MainViewModel CreateDemo(Page page, bool setupWizard = false)
     {
-        var settings = new Settings { FirstRunDone = true, ObsEnabled = true };
+        var settings = new Settings { FirstRunDone = !setupWizard, ObsEnabled = true };
         settings.Voice.ApplyPreset(VoicePreset.SoloCast);
         settings.VoiceFx.ApplyPreset(VoiceFxPreset.Robot);
         settings.VoiceFx.Enabled = true;
 
         var vm = new MainViewModel(settings, live: false) { Page = page };
         vm.FillDemo();
+        if (setupWizard) vm.VbCableMissing = true;
         return vm;
     }
 
